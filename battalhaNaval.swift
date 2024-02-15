@@ -1,6 +1,25 @@
 var tabVis: [[String]] = Array(repeating: Array(repeating: "--", count: 11), count: 11)
 var tabInvis: [[String]] = Array(repeating: Array(repeating: "--", count: 11), count: 11)
 
+struct Ship {
+    var position: (row: Int, col: Int)
+    var orientation: Orientation
+    var size: Size
+    
+    enum Orientation {
+        case horizontal
+        case vertical
+    }
+
+    enum Size {
+        case aircraft 
+        case battleship 
+        case cruiser 
+        case submarine 
+        case destroyer 
+    }
+}
+
 // Print the first horizontal line with numbers
 print("   ", terminator: "")
 for i in 0...11 {
