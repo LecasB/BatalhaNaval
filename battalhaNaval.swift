@@ -1,8 +1,8 @@
 import Foundation
 
-var tabVis: [[String]] = Array(repeating: Array(repeating: "--", count: 11), count: 11)
-var tabInvis: [[String]] = Array(repeating: Array(repeating: "--", count: 11), count: 11)
-
+var tabVis: [[String]] = Array(repeating: Array(repeating: "--", count: 10), count: 10)
+var tabInvis: [[String]] = Array(repeating: Array(repeating: "--", count: 10), count: 10)
+var cont: Int = 0
 class Ship {
     var position: (row: Int, col: Int)
     var orientation: Orientation
@@ -33,7 +33,7 @@ class Ship {
     let size = self.size.rawValue
     
     // Check if the ship fits within the game board
-    if row < 1 || row > 11 || col < 1 || col > 11 {
+    if row < 1 || row > 10 || col < 1 || col > 10 {
         print("Ship position is out of bounds. Please enter a new position.")
         return
     }
@@ -69,7 +69,46 @@ class Ship {
             tabVis[row + i - 1][col - 1] = "**"
         }
     }
+   cont+=1
+        if (cont==5){
+        printGameBoard()
+        enviarBombas()
+    } 
 }
+
+func enviarBombas() {
+    while true {
+        print("Insira a coordenada x para enviar uma bomba")
+        guard let linha = Int(readLine()!), linha >= 1, linha <= 10 else {
+            print("Coordenada inválida. Insira um número entre 1 e 10.")
+            continue
+        }
+        
+        print("Insira a coordenada y para enviar uma bomba")
+        guard let coluna = Int(readLine()!), coluna >= 1, coluna <= 10 else {
+            print("Coordenada inválida. Insira um número entre 1 e 10.")
+            continue
+        }
+        
+        if tabVis[linha - 1][coluna - 1] == "**" {
+            print("Você acertou um navio!")
+            tabVis[linha - 1][coluna - 1] = "X"
+        } else {
+            print("Você não acertou nenhum navio.")
+            tabVis[linha - 1][coluna - 1] = "O"
+        }
+        
+        // Print the updated game board
+        printGameBoard()
+        
+        // Check if all ships have been destroyed
+        if tabVis.flatMap({ $0 }).filter({ $0 == "**" }).isEmpty {
+            print("Parabéns! Você destruiu todos os navios.")
+            break
+        }
+    }
+}
+
 
 func enterNewPosition() {
     print("Insira a cordenada x")
@@ -105,7 +144,7 @@ func enterNewPosition() {
 
 func printGameBoard() {
     print("   ", terminator: "")
-    for i in 0...11 {
+    for i in 0...10 {
         if (i==0){
             print("00 ",terminator: "")
         }
@@ -136,13 +175,13 @@ print("---\(ship.size)---")
        
         
         print("Insira a coordenada x")
-        guard let linha = Int(readLine()!), linha >= 1, linha <= 11 else {
+        guard let linha = Int(readLine()!), linha >= 1, linha <= 10 else {
             print("Coordenada inválida. Insira um número entre 1 e 10.")
             continue
         }
         
         print("Insira a coordenada y")
-        guard let coluna = Int(readLine()!), coluna >= 1, coluna <= 11 else {
+        guard let coluna = Int(readLine()!), coluna >= 1, coluna <= 10 else {
             print("Coordenada inválida. Insira um número entre 1 e 10.")
             continue
         }
