@@ -14,11 +14,11 @@ class Ship {
     }
 
     enum Size: Int {
-        case aircraft = 5 
+        case aircraft = 5
         case battleship = 4
-        case cruiser = 3 
+        case cruiser = 3
         case submarine = 2
-        case destroyer = 1 
+        case destroyer = 1
     }
 
     init(position: (row: Int, col: Int), orientation: Orientation, size: Size) {
@@ -28,21 +28,79 @@ class Ship {
     }
     
     func placeShipOnBoard() {
-        let row = position.row
-        let col = position.col
-        let size = self.size.rawValue
-        
-        switch orientation {
-        case .horizontal:
-            for i in 0..<size {
-                tabVis[row - 1][col + i - 1] = "**"
+    let row = position.row
+    let col = position.col
+    let size = self.size.rawValue
+    
+    // Check if the ship fits within the game board
+    if row < 1 || row > 11 || col < 1 || col > 11 {
+        print("Ship position is out of bounds. Please enter a new position.")
+        return
+    }
+    
+    // Check if the ship overlaps with an existing ship
+    switch orientation {
+    case .horizontal:
+        for i in 0..<size {
+            if tabVis[row - 1][col + i - 1] != "--" {
+                print("Ship position overlaps with another ship. Please enter a new position.")
+                enterNewPosition()
+                return
             }
-        case .vertical:
-            for i in 0..<size {
-                tabVis[row + i - 1][col - 1] = "**"
+        }
+    case .vertical:
+        for i in 0..<size {
+            if tabVis[row + i - 1][col - 1] != "--" {
+                print("Ship position overlaps with another ship. Please enter a new position.")
+                enterNewPosition()
+                return
             }
         }
     }
+    
+    // Place the ship on the board
+    switch orientation {
+    case .horizontal:
+        for i in 0..<size {
+            tabVis[row - 1][col + i - 1] = "**"
+        }
+    case .vertical:
+        for i in 0..<size {
+            tabVis[row + i - 1][col - 1] = "**"
+        }
+    }
+}
+
+func enterNewPosition() {
+    print("Insira a cordenada x")
+    guard let linha = Int(readLine()!) else {
+        print("Coordenada inválida. Insira um número entre 1 e 10.")
+        enterNewPosition()
+        return
+    }
+    
+    print("Insira a cordenada y")
+    guard let coluna = Int(readLine()!) else {
+        print("Coordenada inválida. Insira um número entre 1 e 10.")
+        enterNewPosition()
+        return
+    }
+    
+    print("V - Vertical ou H - Horizontal? ")
+    guard let orienta = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines), !orienta.isEmpty, (orienta.lowercased() == "v" || orienta.lowercased() == "h") else {
+        print("Orientação inválida. Insira 'V' para vertical ou 'H' para horizontal.")
+        enterNewPosition()
+        return
+    }
+    
+    let orientation: Ship.Orientation = orienta.lowercased() == "v" ? .vertical : .horizontal
+    position = (linha, coluna)
+    self.orientation = orientation
+    
+    // Check if the new ship's position overlaps with an existing ship
+    placeShipOnBoard()
+}
+
 }
 
 func printGameBoard() {
@@ -72,70 +130,58 @@ func printGameBoard() {
     }
 }
 
-print("---Aircraft---")
-print("Insira a cordernada x")
-let linha = Int(readLine()!)!
-print("Insira a cordenada y")
-let coluna = Int(readLine()!)!
-print("V - Vertical ou H - Horizontal? ")
-var orienta = readLine()
-var orientation: Ship.Orientation?
-if let orienta = orienta {
-    orientation = orienta.lowercased() == "v" ? .vertical : .horizontal
+func enterShipPosition(ship: Ship) {
+print("---\(ship.size)---")
+    while true {
+       
+        
+        print("Insira a coordenada x")
+        guard let linha = Int(readLine()!), linha >= 1, linha <= 11 else {
+            print("Coordenada inválida. Insira um número entre 1 e 10.")
+            continue
+        }
+        
+        print("Insira a coordenada y")
+        guard let coluna = Int(readLine()!), coluna >= 1, coluna <= 11 else {
+            print("Coordenada inválida. Insira um número entre 1 e 10.")
+            continue
+        }
+        
+        print("V - Vertical ou H - Horizontal? ")
+        guard let orienta = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines), !orienta.isEmpty, (orienta.lowercased() == "v" || orienta.lowercased() == "h") else {
+            print("Orientação inválida. Insira 'V' para vertical ou 'H' para horizontal.")
+            continue
+        }
+        
+        let orientation: Ship.Orientation = orienta.lowercased() == "v" ? .vertical : .horizontal
+        ship.position = (linha, coluna)
+        ship.orientation = orientation
+        ship.placeShipOnBoard()
+        
+        // If the ship has been successfully placed on the board, break out of the loop
+        break
+    }
 }
-let aircraft = Ship(position: (Int(linha), Int(coluna)), orientation: orientation ?? .horizontal, size: .aircraft)
-aircraft.placeShipOnBoard()
 
-print("---Battleship---")
-print("Insira a cordernada x")
-let linha2 = Int(readLine()!)!
-print("Insira a cordenada y")
-let coluna2 = Int(readLine()!)!
-print("V - Vertical ou H - Horizontal? ")
-orienta = readLine()
-if let orienta = orienta {
-    orientation = orienta.lowercased() == "v" ? .vertical : .horizontal
-}
-let battleship = Ship(position: (Int(linha2), Int(coluna2)), orientation: orientation ?? .horizontal, size: .battleship)
-battleship.placeShipOnBoard()
 
-print("---Cruiser---")
-print("Insira a cordernada x")
-let linha3 = Int(readLine()!)!
-print("Insira a cordenada y")
-let coluna3 = Int(readLine()!)!
-print("V - Vertical ou H - Horizontal? ")
-orienta = readLine()
-if let orienta = orienta {
-    orientation = orienta.lowercased() == "v" ? .vertical : .horizontal
-}
-let cruiser = Ship(position: (Int(linha3), Int(coluna3)), orientation: orientation ?? .horizontal, size: .cruiser)
-cruiser.placeShipOnBoard()
 
-print("---Submarine---")
-print("Insira a cordernada x")
-let linha4 = Int(readLine()!)!
-print("Insira a cordenada y")
-let coluna4 = Int(readLine()!)!
-print("V - Vertical ou H - Horizontal? ")
-orienta = readLine()
-if let orienta = orienta {
-    orientation = orienta.lowercased() == "v" ? .vertical : .horizontal
-}
-let submarine = Ship(position: (Int(linha4), Int(coluna4)), orientation: orientation ?? .horizontal, size: .submarine)
-submarine.placeShipOnBoard()
+let aircraft = Ship(position: (0, 0), orientation: .horizontal, size: .aircraft)
+enterShipPosition(ship: aircraft)
 
-print("---Destroyer---")
-print("Insira a cordernada x")
-let linha5 = Int(readLine()!)!
-print("Insira a cordenada y")
-let coluna5 = Int(readLine()!)!
-print("V - Vertical ou H - Horizontal? ")
-orienta = readLine()
-if let orienta = orienta {
-    orientation = orienta.lowercased() == "v" ? .vertical : .horizontal
-}
-let destroyer = Ship(position: (Int(linha5), Int(coluna5)), orientation: orientation ?? .horizontal, size: .destroyer)
-destroyer.placeShipOnBoard()
+
+let battleship = Ship(position: (0, 0), orientation: .horizontal, size: .battleship)
+enterShipPosition(ship: battleship)
+
+
+let cruiser = Ship(position: (0, 0), orientation: .horizontal, size: .cruiser)
+enterShipPosition(ship: cruiser)
+
+
+let submarine = Ship(position: (0, 0), orientation: .horizontal, size: .submarine)
+enterShipPosition(ship: submarine)
+
+
+let destroyer = Ship(position: (0, 0), orientation: .horizontal, size: .destroyer)
+enterShipPosition(ship: destroyer)
 
 printGameBoard()
