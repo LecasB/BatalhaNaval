@@ -7,6 +7,8 @@ class Ship {
     var position: (row: Int, col: Int)
     var orientation: Orientation
     var size: Size
+    var isDestroyed: Bool = false
+    var remainingHits: Int
     
     enum Orientation {
         case horizontal
@@ -25,6 +27,7 @@ class Ship {
         self.position = position
         self.orientation = orientation
         self.size = size
+        self.remainingHits = size.rawValue
     }
     
     func placeShipOnBoard() {
@@ -35,6 +38,7 @@ class Ship {
     // Check if the ship fits within the game board
     if row < 1 || row > 10 || col < 1 || col > 10 {
         print("Ship position is out of bounds. Please enter a new position.")
+        enterNewPosition()
         return
     }
     
@@ -42,16 +46,16 @@ class Ship {
     switch orientation {
     case .horizontal:
         for i in 0..<size {
-            if tabVis[row - 1][col + i - 1] != "--" {
-                print("Ship position overlaps with another ship. Please enter a new position.")
+            if col + i - 1 >= 10 || tabVis[row - 1][col + i - 1] != "--" {
+                print("Posicao Invalida. Insira Nova")
                 enterNewPosition()
                 return
             }
         }
     case .vertical:
         for i in 0..<size {
-            if tabVis[row + i - 1][col - 1] != "--" {
-                print("Ship position overlaps with another ship. Please enter a new position.")
+            if row + i - 1 >= 10 || tabVis[row + i - 1][col - 1] != "--" {
+                print("Posicao Invalida. Insira Nova")
                 enterNewPosition()
                 return
             }
@@ -63,20 +67,25 @@ class Ship {
     case .horizontal:
         for i in 0..<size {
             tabVis[row - 1][col + i - 1] = "**"
+            remainingHits -= 1
         }
     case .vertical:
         for i in 0..<size {
             tabVis[row + i - 1][col - 1] = "**"
+            remainingHits -= 1
         }
     }
-   cont+=1
-        if (cont==5){
+    cont += 1
+    if cont == 5 {
         printGameBoard()
         enviarBombas()
-    } 
+    }
 }
 
+
 func enviarBombas() {
+    let shipsInOrder = [aircraft, battleship, cruiser, submarine, destroyer]
+    
     while true {
         print("Insira a coordenada x para enviar uma bomba")
         guard let linha = Int(readLine()!), linha >= 1, linha <= 10 else {
@@ -92,10 +101,10 @@ func enviarBombas() {
         
         if tabVis[linha - 1][coluna - 1] == "**" {
             print("Você acertou um navio!")
-            tabVis[linha - 1][coluna - 1] = "X"
+            tabVis[linha - 1][coluna - 1] = "XX"
         } else {
             print("Você não acertou nenhum navio.")
-            tabVis[linha - 1][coluna - 1] = "O"
+            tabVis[linha - 1][coluna - 1] = "~~"
         }
         
         // Print the updated game board
@@ -106,8 +115,35 @@ func enviarBombas() {
             print("Parabéns! Você destruiu todos os navios.")
             break
         }
+        
+        // Check if a ship is destroyed and print its name
+        for ship in shipsInOrder {
+            var isDestroyed = true
+            for i in 0..<ship.size.rawValue {
+                let row = ship.position.row
+                let col = ship.position.col
+                if ship.orientation == .horizontal {
+                    if tabVis[row - 1][col + i - 1] != "XX" {
+                        isDestroyed = false
+                        break
+                    }
+                } else {
+                    if tabVis[row + i - 1][col - 1] != "XX" {
+                        isDestroyed = false
+                        break
+                    }
+                }
+            }
+            if isDestroyed && !ship.isDestroyed {
+                print("\(ship.size) foi destruído!")
+                ship.isDestroyed = true
+                break // Exit the loop after the first ship is destroyed
+            }
+        }
     }
 }
+
+
 
 
 func enterNewPosition() {
@@ -143,7 +179,6 @@ func enterNewPosition() {
 }
 
 func printGameBoard() {
-    print("   ", terminator: "")
     for i in 0...10 {
         if (i==0){
             print("00 ",terminator: "")
@@ -202,25 +237,25 @@ print("---\(ship.size)---")
     }
 }
 
-
+printGameBoard()
 
 let aircraft = Ship(position: (0, 0), orientation: .horizontal, size: .aircraft)
 enterShipPosition(ship: aircraft)
-
+printGameBoard()
 
 let battleship = Ship(position: (0, 0), orientation: .horizontal, size: .battleship)
 enterShipPosition(ship: battleship)
-
+printGameBoard()
 
 let cruiser = Ship(position: (0, 0), orientation: .horizontal, size: .cruiser)
 enterShipPosition(ship: cruiser)
-
+printGameBoard()
 
 let submarine = Ship(position: (0, 0), orientation: .horizontal, size: .submarine)
 enterShipPosition(ship: submarine)
-
+printGameBoard()
 
 let destroyer = Ship(position: (0, 0), orientation: .horizontal, size: .destroyer)
 enterShipPosition(ship: destroyer)
-
 printGameBoard()
+
