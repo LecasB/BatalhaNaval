@@ -259,4 +259,3 @@ let destroyer = Ship(position: (0, 0), orientation: .horizontal, size: .destroye
 enterShipPosition(ship: destroyer)
 printGameBoard()
 
-//pila
